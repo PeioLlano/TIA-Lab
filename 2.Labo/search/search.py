@@ -17,6 +17,8 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
+from multiprocessing.connection import wait
+from platform import node
 import util
 
 class SearchProblem:
@@ -87,17 +89,132 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    examinados = {}
+    camino = {}
+    frontera = util.Stack()
+    encontrado = False
+
+    frontera.push((problem.getStartState(),"",None))
+    
+    while not frontera.isEmpty():
+        
+        nodo = frontera.pop()
+        
+        if problem.isGoalState(nodo[0]):
+            encontrado = True
+            break
+
+        if nodo[0] not in examinados:
+            examinados[nodo[0]] = ""
+            for nuevoNodo in problem.getSuccessors(nodo[0]):
+                frontera.push(nuevoNodo)
+                camino[nuevoNodo] = nodo 
+
+    coordenadas = []
+    
+
+    while nodo[0] != problem.getStartState() and encontrado:
+        coordenadas.insert(0,nodo[1])
+        nodo = camino[nodo]
+
+    print(coordenadas)
+
+    return coordenadas 
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    examinados = {}
+    camino = {}
+    frontera = util.Queue()
+    encontrado = False
+
+    frontera.push((problem.getStartState(),"",None))
+    
+    while not frontera.isEmpty():
+        
+        nodo = frontera.pop()
+        
+        if problem.isGoalState(nodo[0]):
+            encontrado = True
+            break
+
+        if nodo[0] not in examinados:
+            examinados[nodo[0]] = ""
+            for nuevoNodo in problem.getSuccessors(nodo[0]):
+                frontera.push(nuevoNodo)
+                camino[nuevoNodo] = nodo 
+
+    coordenadas = []
+    
+
+    while nodo[0] != problem.getStartState() and encontrado:
+        coordenadas.insert(0,nodo[1])
+        nodo = camino[nodo]
+
+    print(coordenadas)
+
+    return coordenadas
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    examinados = {}
+    camino = {}
+    frontera = util.PriorityQueue()
+    encontrado = False
+
+    frontera.push((problem.getStartState(),"",0),1)
+    camino[problem.getStartState()] = ((None), 0)
+    
+    while not frontera.isEmpty():
+        
+        nodo = frontera.pop()
+        
+        if problem.isGoalState(nodo[0]):
+            encontrado = True
+            break
+
+        if nodo[0] not in examinados:
+            examinados[nodo[0]] = nodo[2]
+
+            for nuevoNodo in problem.getSuccessors(nodo[0]):
+
+                '''
+                print('Nodo: ' + str(nodo))
+                print('Nuevo nodo: ' + str(nuevoNodo))
+                dictionary_items = camino.items()
+                print('Camino: ')
+                for item in dictionary_items:
+                    print(item)
+                '''
+
+                if nuevoNodo[0] not in camino:
+                    camino[nuevoNodo[0]] = (nodo,camino[nodo[0]][1]+nuevoNodo[2])
+                else:
+                    if camino[nuevoNodo[0]][1] > camino[nodo[0]][1]+nodo[2]:
+                        camino[nuevoNodo[0]] = (nodo,camino[nodo[0]][1]+nuevoNodo[2])
+                frontera.push(nuevoNodo, camino[nuevoNodo[0]][1])
+
+    coordenadas = []
+
+    '''
+    print('Encontrado? ' + str(encontrado))
+    print('Nodo final: ' + str(nodo))
+    print('Coste: ' + str(camino[nodo[0]][1]))
+    dictionary_items = camino.items()
+    for item in dictionary_items:
+        print(item)
+    '''
+    
+    while nodo[0] != problem.getStartState() and encontrado:
+        coordenadas.insert(0,nodo[1])
+        nodo = camino[nodo[0]][0]
+
+    return coordenadas 
+
+
 
 def nullHeuristic(state, problem=None):
     """
