@@ -288,7 +288,6 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.visitedCorners = {}
         self.costFn = lambda x: 1
 
     def getStartState(self):
@@ -297,20 +296,17 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return self.startingPosition
+        return (self.startingPosition, self.corners)
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        if state in self.corners and state not in self.visitedCorners:
-            self.visitedCorners[state] = True
-            if len(self.visitedCorners) == 4:
-                return True
-            else:
-                return False
-            
+        lista = list(state[1])
+        if(state[0] in lista):
+            lista.remove(state[0])
+        return len(lista) == 0
 
     def getSuccessors(self, state):
         """
@@ -333,13 +329,17 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x,y = state
+            x,y = state[0]
+            lista = list(state[1])
+            if state[0] in lista:
+                lista.remove((x,y))
+
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 nextState = (nextx, nexty)
                 cost = self.costFn(nextState)
-                successors.append( ( nextState, action, cost) )
+                successors.append( ( (nextState, tuple(lista)), action, cost) )
             
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -377,12 +377,12 @@ def cornersHeuristic(state, problem):
     minDistance = -1
 
     "*** YOUR CODE HERE ***"
-    for corner in corners:
-        euclidean = ( (state[0] - corner[0]) ** 2 + (state[1] - corner[1]) ** 2 ) ** 0.5
+    for corner in state[1]:
+        euclidean = ( (state[0][0] - corner[0]) ** 2 + (state[0][1] - corner[1]) ** 2 ) ** 0.5
         if ((euclidean < minDistance) and (minDistance != -1)):
             minDistance = euclidean
 
-    return 0 # Default to trivial solution
+    return minDistance # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

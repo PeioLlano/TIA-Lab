@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 from multiprocessing.connection import wait
 from platform import node
+from time import sleep, time
 import util
 import searchAgents
 
@@ -126,37 +127,26 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    examinados = {}
-    camino = {}
     frontera = util.Queue()
-    encontrado = False
+    examinados = {}
+    frontera.push((problem.getStartState(), []))
 
-    frontera.push((problem.getStartState(),"",None))
-    
     while not frontera.isEmpty():
-        
+        #nodo -> ((x,y),[lista de coordenadas])
         nodo = frontera.pop()
-        
+
         if problem.isGoalState(nodo[0]):
-            encontrado = True
-            break
+            return nodo[1]
 
-        if nodo[0] not in examinados:
-            examinados[nodo[0]] = ""
-            for nuevoNodo in problem.getSuccessors(nodo[0]):
-                frontera.push(nuevoNodo)
-                camino[nuevoNodo] = nodo 
+        #nuevoNodo -> ((x,y),'coordenada', coste)
+        for nuevoNodo in problem.getSuccessors(nodo[0]):
+            if nuevoNodo[0] not in examinados:
+                frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]]))
+                examinados[nuevoNodo[0]] = True
 
-    coordenadas = []
-    
+        examinados[nodo[0]] = True
 
-    while nodo[0] != problem.getStartState() and encontrado:
-        coordenadas.insert(0,nodo[1])
-        nodo = camino[nodo]
-
-    print(coordenadas)
-
-    return coordenadas
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
