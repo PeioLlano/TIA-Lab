@@ -288,6 +288,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.visitedCorners = {}
+        self.costFn = lambda x: 1
 
     def getStartState(self):
         """
@@ -295,14 +297,20 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startingPosition
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if state in self.corners and state not in self.visitedCorners:
+            self.visitedCorners[state] = True
+            if len(self.visitedCorners) == 4:
+                return True
+            else:
+                return False
+            
 
     def getSuccessors(self, state):
         """
@@ -325,7 +333,14 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-
+            x,y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextState = (nextx, nexty)
+                cost = self.costFn(nextState)
+                successors.append( ( nextState, action, cost) )
+            
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -359,7 +374,14 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
+    minDistance = -1
+
     "*** YOUR CODE HERE ***"
+    for corner in corners:
+        euclidean = ( (state[0] - corner[0]) ** 2 + (state[1] - corner[1]) ** 2 ) ** 0.5
+        if ((euclidean < minDistance) and (minDistance != -1)):
+            minDistance = euclidean
+
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
