@@ -91,38 +91,27 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    examinados = {}
-    camino = {}
     frontera = util.Stack()
-    encontrado = False
+    examinados = {}
+    frontera.push((problem.getStartState(), []))
 
-    frontera.push((problem.getStartState(),"",None))
-    
     while not frontera.isEmpty():
-        
+        #nodo -> ((x,y),[lista de coordenadas])
+        #nodo -> (((x,y), (lista de corners)),[lista de coordenadas])
         nodo = frontera.pop()
-        
+
         if problem.isGoalState(nodo[0]):
-            encontrado = True
-            break
+            return nodo[1]
 
-        if nodo[0] not in examinados:
-            examinados[nodo[0]] = ""
-            for nuevoNodo in problem.getSuccessors(nodo[0]):
-                frontera.push(nuevoNodo)
-                camino[nuevoNodo] = nodo 
+        #nuevoNodo -> ((x,y),'coordenada', coste)
+        for nuevoNodo in problem.getSuccessors(nodo[0]):
+            print(nuevoNodo)
+            if nuevoNodo[0] not in examinados:
+                frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]]))
 
-    coordenadas = []
-    
+        examinados[nodo[0]] = True
 
-    while nodo[0] != problem.getStartState() and encontrado:
-        coordenadas.insert(0,nodo[1])
-        nodo = camino[nodo]
-
-    print(coordenadas)
-
-    return coordenadas 
-
+    return []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -133,6 +122,7 @@ def breadthFirstSearch(problem):
 
     while not frontera.isEmpty():
         #nodo -> ((x,y),[lista de coordenadas])
+        #nodo -> (((x,y), (lista de corners)),[lista de coordenadas])
         nodo = frontera.pop()
 
         if problem.isGoalState(nodo[0]):
@@ -151,60 +141,42 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    examinados = {}
-    camino = {}
     frontera = util.PriorityQueue()
-    encontrado = False
+    examinados = {}
+    frontera.push((problem.getStartState(), [], 0),1)
 
-    frontera.push((problem.getStartState(),"",0),1)
-    camino[problem.getStartState()] = ((None), 0)
-    
     while not frontera.isEmpty():
-        
+        # nodo -> ((x,y),[lista de coordenadas], coste)
+            # nodo[0] -> (x,y)
+            # nodo[1] -> [lista de coordenadas]
+            # nodo[2] -> coste
+        # nodo -> (((x,y), (lista de corners)),[lista de coordenadas], coste)
+            # nodo[0] -> ((x,y), (lista de corners))
+            # nodo[1] -> [lista de coordenadas]
+            # nodo[2] -> coste
+
         nodo = frontera.pop()
-        
+
         if problem.isGoalState(nodo[0]):
-            encontrado = True
-            break
+            return nodo[1]
+
 
         if nodo[0] not in examinados:
-            examinados[nodo[0]] = nodo[2]
+            examinados[nodo[0]] = nodo[2] #añado el coste
 
+            # nuevoNodo -> ((x,y),'coordenada', coste)
+                # nuevoNodo[0] -> (x,y)
+                # nuevoNodo[1] -> coordenada
+                # nuevoNodo[2] -> coste
+            # nuevoNodo -> (((x,y), (corners)),'coordenada', coste)
+                # nuevoNodo[0] -> ((x,y), (corners))
+                # nuevoNodo[1] -> coordenada
+                # nuevoNodo[2] -> coste
             for nuevoNodo in problem.getSuccessors(nodo[0]):
-
-                '''
-                print('Nodo: ' + str(nodo))
-                print('Nuevo nodo: ' + str(nuevoNodo))
-                dictionary_items = camino.items()
-                print('Camino: ')
-                for item in dictionary_items:
-                    print(item)
-                '''
-
-                if nuevoNodo[0] not in camino:
-                    camino[nuevoNodo[0]] = (nodo,camino[nodo[0]][1]+nuevoNodo[2])
-                else:
-                    if camino[nuevoNodo[0]][1] > camino[nodo[0]][1]+nodo[2]:
-                        camino[nuevoNodo[0]] = (nodo,camino[nodo[0]][1]+nuevoNodo[2])
-                frontera.push(nuevoNodo, camino[nuevoNodo[0]][1])
-
-    coordenadas = []
-
-    '''
-    print('Encontrado? ' + str(encontrado))
-    print('Nodo final: ' + str(nodo))
-    print('Coste: ' + str(camino[nodo[0]][1]))
-    dictionary_items = camino.items()
-    for item in dictionary_items:
-        print(item)
-    '''
-    
-    while nodo[0] != problem.getStartState() and encontrado:
-        coordenadas.insert(0,nodo[1])
-        nodo = camino[nodo[0]][0]
-
-    return coordenadas 
-
+                if nuevoNodo[0] not in examinados:
+                    frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]], nuevoNodo[2]+nodo[2]), nuevoNodo[2]+nodo[2])
+        
+    return []
 
 
 def nullHeuristic(state, problem=None):
@@ -217,47 +189,40 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    examinados = {}
-    camino = {}
     frontera = util.PriorityQueue()
-    encontrado = False
+    examinados = {}
+    frontera.push((problem.getStartState(), [], 0),1)
 
-    frontera.push((problem.getStartState(),"",0),1)
-    camino[problem.getStartState()] = ((None), 0)
-    
     while not frontera.isEmpty():
-        
+        # nodo -> ((x,y),[lista de coordenadas], coste)
+            # nodo[0] -> (x,y)
+            # nodo[1] -> [lista de coordenadas]
+            # nodo[2] -> coste
+        # nodo -> (((x,y), (lista de corners)),[lista de coordenadas], coste)
+            # nodo[0] -> ((x,y), (lista de corners))
+            # nodo[1] -> [lista de coordenadas]
+            # nodo[2] -> coste
+
         nodo = frontera.pop()
-        
+
         if problem.isGoalState(nodo[0]):
-            encontrado = True
-            break
+            return nodo[1]
+
 
         if nodo[0] not in examinados:
-            examinados[nodo[0]] = nodo[2]
+            examinados[nodo[0]] = nodo[2] #añado el coste
 
+            # nuevoNodo -> ((x,y),'coordenada', coste)
+                # nuevoNodo[0] -> (x,y)
+                # nuevoNodo[1] -> coordenada
+                # nuevoNodo[2] -> coste
+            # nuevoNodo -> (((x,y), (corners)),'coordenada', coste)
+                # nuevoNodo[0] -> ((x,y), (corners))
+                # nuevoNodo[1] -> coordenada
+                # nuevoNodo[2] -> coste
             for nuevoNodo in problem.getSuccessors(nodo[0]):
-
-                '''
-                print('Nodo: ' + str(nodo))
-                print('Nuevo nodo: ' + str(nuevoNodo))
-                dictionary_items = camino.items()
-                print('Camino: ')
-                for item in dictionary_items:
-                    print(item)
-                '''
-                '''
-                print('Nodo: ' + str(nuevoNodo))
-                print('Heuristico: ' + str(heuristic(nuevoNodo[0],problem)))
-                '''
-
-                if nuevoNodo[0] not in camino:
-                    camino[nuevoNodo[0]] = (nodo,camino[nodo[0]][1]+nuevoNodo[2])
-                else:
-                    if camino[nuevoNodo[0]][1] > camino[nodo[0]][1]+nodo[2]:
-                        camino[nuevoNodo[0]] = (nodo,camino[nodo[0]][1]+nuevoNodo[2]+heuristic(nuevoNodo[0],problem))
-                frontera.push(nuevoNodo, camino[nuevoNodo[0]][1] + heuristic(nuevoNodo[0],problem))
-
+                if nuevoNodo[0] not in examinados:
+                    frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]], nuevoNodo[2]+nodo[2]), nuevoNodo[2]+nodo[2]+heuristic(nuevoNodo[0],problem))
     coordenadas = []
 
     '''
