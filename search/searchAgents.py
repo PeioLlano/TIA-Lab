@@ -37,6 +37,7 @@ Good luck and happy searching!
 from game import Directions
 from game import Agent
 from game import Actions
+from search import breadthFirstSearch
 import util
 import time
 import search
@@ -404,7 +405,9 @@ class FoodSearchProblem:
         self.walls = startingGameState.getWalls()
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
-        self.heuristicInfo = {} # A dictionary for the heuristic to store information
+        self.heuristicInfo = {
+            'foodLeft': startingGameState.getFood().asList()
+            }
 
     def getStartState(self):
         return self.start
@@ -476,7 +479,35 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    if problem.isGoalState(state):
+        heuristic = 0
+    else:
+        nearestFoodDistance = 9999
+        for food in problem.heuristicInfo['foodLeft']:
+            if state[0] == food:
+                problem.heuristicInfo['foodLeft'].remove(food)
+                nearestFoodDistance = 0
+            else:
+                manhattan = abs(state[0][0] - food[0]) + abs(state[0][1] - food[1])
+
+                if manhattan < nearestFoodDistance:
+                    nearestFoodDistance = manhattan
+
+        #el heuristico se calcula sumando la distancia entre las comidas mas lejanas y la distancia del estado actual a la comida mas cercana (multiplicado por 3)
+        if len(problem.heuristicInfo['foodLeft']) > 1:
+            distanceBetweenFood = (abs(problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1][0] - \
+                problem.heuristicInfo['foodLeft'][0][0]) + abs(problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1][1] - \
+                    problem.heuristicInfo['foodLeft'][1][1]))
+            #distanceBetweenFood = mazeDistance(problem.heuristicInfo['foodLeft'][0] ,problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1], problem.startingGameState)
+
+            foodCount = len(problem.heuristicInfo['foodLeft'])
+
+            heuristic = (nearestFoodDistance + distanceBetweenFood + foodCount) / 10
+        else:
+            heuristic = nearestFoodDistance
+
+    #print(state[0], problem.heuristicInfo['foodLeft'], heuristic)
+    return heuristic# Default to trivial solution
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -502,12 +533,12 @@ class ClosestDotSearchAgent(SearchAgent):
         """
         # Here are some useful elements of the startState
         startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
+        food = gameState.getFood().asList()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -543,6 +574,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        if state in self.food.asList():
+            return True
+        else:
+            return False
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
