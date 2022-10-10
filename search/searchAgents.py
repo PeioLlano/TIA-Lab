@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from multiprocessing.connection import wait
 from game import Directions
 from game import Agent
 from game import Actions
@@ -375,17 +376,56 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    minDistance = 999999999
+    heuristico = 0
+
+    ubic = state[0]
+    corners = state[1]
+
+    esquinasRestantes = corners
+    puntoLag = ubic
 
     "*** YOUR CODE HERE ***"
-    xy1 = (state[0][0],state[0][1])
-    for corner in state[1]:
-        xy2 = (corner[0],corner[1])
-        manhattan = util.manhattanDistance(xy1,xy2)
-        if (manhattan < minDistance):
-            minDistance = manhattan
+    while len(esquinasRestantes) > 0:
+        
+        distanciaEsquina = []
+        #Cojo la esquina mas cercano al punto acutal
+            #Al principio sera el punto inicial
+            #Despues pasara a ser la esquina mas cercana al punto central
+            #Despues la esquina mas cercana a la esquina que ha sido la mas cercana al punto anterios
+            #Y asi sucesivamente.
+        for corner in esquinasRestantes:
+            distancia = util.manhattanDistance(puntoLag, corner)
+            distanciaEsquina.append((distancia, corner))
 
-    return minDistance # Default to trivial solution
+        distancia, esquina = min(distanciaEsquina)
+
+        #Suma de las cuatro distancias 
+            # Punto --> Esquina1
+            # Esquina1 --> Esquina2
+            # Esquina2 --> Esquina3
+            # Esquina3 --> Esquina4
+        heuristico += distancia
+
+        # Cambio el punto que tenia el punto inicial o el mas cercano por el punto mas cercado a ese.
+        puntoLag = esquina
+
+        # Quito la esquina que ya he visitado
+        esquinasRestantes = tuple([i for i in esquinasRestantes if i != esquina])
+
+    return heuristico
+
+def esquinaCercana(ubic, corners):
+
+    minDistance = 100000000
+    minPoint = None
+
+    for corner in corners:
+        coste = util.manhattanDistance(ubic, corner)
+        if coste < minDistance:
+            minDistance = coste
+            minPoint = corner
+  
+    return minPoint
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
