@@ -298,6 +298,7 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         return (self.startingPosition, self.corners)
+        
 
     def isGoalState(self, state):
         """
@@ -405,12 +406,12 @@ class FoodSearchProblem:
         self.walls = startingGameState.getWalls()
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
-        self.heuristicInfo = {
-            'foodLeft': startingGameState.getFood().asList()
-            } 
 
     def getStartState(self):
         return self.start
+    
+    def getGameState(self):
+        return self.startingGameState
 
     def isGoalState(self, state):
         return state[1].count() == 0
@@ -479,34 +480,21 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    if problem.isGoalState(state):
-        heuristic = 0
-    else:
+    gameState = problem.getGameState()
+    heuristic = 0
+    if len(foodGrid.asList()) > 0:
+        nearestFood = (-1, -1)
         nearestFoodDistance = 9999
-        for food in problem.heuristicInfo['foodLeft']:
-            if state[0] == food:
-                problem.heuristicInfo['foodLeft'].remove(food)
-                nearestFoodDistance = 0
-            else:
-                manhattan = abs(state[0][0] - food[0]) + abs(state[0][1] - food[1])
+        for food in foodGrid.asList():
+            manhattan = util.manhattanDistance(state[0], food)
+            if manhattan < nearestFoodDistance:
+                nearestFoodDistance = manhattan
+                nearestFood = food
 
-                if manhattan < nearestFoodDistance:
-                    nearestFoodDistance = manhattan
+        if nearestFood != (-1, -1):
+            mazeClosestFood = mazeDistance(position, nearestFood, gameState)
+            heuristic = mazeClosestFood
 
-        #el heuristico se calcula sumando la distancia entre las comidas mas lejanas y la distancia del estado actual a la comida mas cercana (multiplicado por 3)
-        if len(problem.heuristicInfo['foodLeft']) > 1:
-            distanceBetweenFood = (abs(problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1][0] - \
-                problem.heuristicInfo['foodLeft'][0][0]) + abs(problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1][1] - \
-                    problem.heuristicInfo['foodLeft'][1][1]))
-            #distanceBetweenFood = mazeDistance(problem.heuristicInfo['foodLeft'][0] ,problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1], problem.startingGameState)
-
-            foodCount = len(problem.heuristicInfo['foodLeft'])
-
-            heuristic = (nearestFoodDistance + distanceBetweenFood + foodCount) / 10
-        else:
-            heuristic = nearestFoodDistance
-
-    #print(state[0], problem.heuristicInfo['foodLeft'], heuristic)
     return heuristic# Default to trivial solution
 
 class ClosestDotSearchAgent(SearchAgent):
