@@ -414,18 +414,6 @@ def cornersHeuristic(state, problem):
 
     return heuristico
 
-def esquinaCercana(ubic, corners):
-
-    minDistance = 100000000
-    minPoint = None
-
-    for corner in corners:
-        coste = util.manhattanDistance(ubic, corner)
-        if coste < minDistance:
-            minDistance = coste
-            minPoint = corner
-  
-    return minPoint
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
