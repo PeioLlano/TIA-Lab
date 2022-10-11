@@ -527,14 +527,14 @@ def foodHeuristic(state, problem):
     if len(foodGrid.asList()) > 0:
         nearestFood = (-1, -1)
         nearestFoodDistance = 9999
-        for food in foodGrid.asList():
+        for food in foodGrid.asList(): #encontrar la comida mas cercana mediante la distancia manhattan
             manhattan = util.manhattanDistance(state[0], food)
             if manhattan < nearestFoodDistance:
                 nearestFoodDistance = manhattan
                 nearestFood = food
 
         if nearestFood != (-1, -1):
-            mazeClosestFood = mazeDistance(position, nearestFood, gameState)
+            mazeClosestFood = mazeDistance(position, nearestFood, gameState) #calcular la distancia (maze) entre la posición de pacman y la comida mas cercana
             heuristic = mazeClosestFood
 
     return heuristic# Default to trivial solution
