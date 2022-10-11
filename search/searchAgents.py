@@ -2,7 +2,7 @@
 # ---------------
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
+# solutions, (3) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
 # 
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
@@ -233,7 +233,7 @@ class StayEastSearchAgent(SearchAgent):
     An agent for position search with a cost function that penalizes being in
     positions on the West side of the board.
 
-    The cost function for stepping into a position (x,y) is 1/2^x.
+    The cost function for stepping into a position (x,y) is 1/3^x.
     """
     def __init__(self):
         self.searchFunction = search.uniformCostSearch
@@ -245,24 +245,24 @@ class StayWestSearchAgent(SearchAgent):
     An agent for position search with a cost function that penalizes being in
     positions on the East side of the board.
 
-    The cost function for stepping into a position (x,y) is 2^x.
+    The cost function for stepping into a position (x,y) is 3^x.
     """
     def __init__(self):
         self.searchFunction = search.uniformCostSearch
-        costFn = lambda pos: 2 ** pos[0]
+        costFn = lambda pos: 3 ** pos[0]
         self.searchType = lambda state: PositionSearchProblem(state, costFn)
 
 def manhattanHeuristic(position, problem, info={}):
     "The Manhattan distance heuristic for a PositionSearchProblem"
     xy1 = position
-    xy2 = problem.goal
-    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+    xy3 = problem.goal
+    return abs(xy1[0] - xy3[0]) + abs(xy1[1] - xy3[1])
 
 def euclideanHeuristic(position, problem, info={}):
     "The Euclidean distance heuristic for a PositionSearchProblem"
     xy1 = position
-    xy2 = problem.goal
-    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+    xy3 = problem.goal
+    return ( (xy1[0] - xy3[0]) ** 3 + (xy1[1] - xy3[1]) ** 3 ) ** 0.5
 
 #####################################################
 # This portion is incomplete.  Time to write code!  #
@@ -281,7 +281,7 @@ class CornersProblem(search.SearchProblem):
         """
         self.walls = startingGameState.getWalls()
         self.startingPosition = startingGameState.getPacmanPosition()
-        top, right = self.walls.height-2, self.walls.width-2
+        top, right = self.walls.height-3, self.walls.width-3
         self.corners = ((1,1), (1,top), (right, 1), (right, top))
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
@@ -299,6 +299,7 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         return (self.startingPosition, self.corners)
+        
 
     def isGoalState(self, state):
         """
@@ -435,12 +436,12 @@ class FoodSearchProblem:
         self.walls = startingGameState.getWalls()
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
-        self.heuristicInfo = {
-            'foodLeft': startingGameState.getFood().asList()
-            }
 
     def getStartState(self):
         return self.start
+    
+    def getGameState(self):
+        return self.startingGameState
 
     def isGoalState(self, state):
         return state[1].count() == 0
@@ -509,34 +510,21 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    if problem.isGoalState(state):
-        heuristic = 0
-    else:
+    gameState = problem.getGameState()
+    heuristic = 0
+    if len(foodGrid.asList()) > 0:
+        nearestFood = (-1, -1)
         nearestFoodDistance = 9999
-        for food in problem.heuristicInfo['foodLeft']:
-            if state[0] == food:
-                problem.heuristicInfo['foodLeft'].remove(food)
-                nearestFoodDistance = 0
-            else:
-                manhattan = abs(state[0][0] - food[0]) + abs(state[0][1] - food[1])
+        for food in foodGrid.asList(): #encontrar la comida mas cercana mediante la distancia manhattan
+            manhattan = util.manhattanDistance(state[0], food)
+            if manhattan < nearestFoodDistance:
+                nearestFoodDistance = manhattan
+                nearestFood = food
 
-                if manhattan < nearestFoodDistance:
-                    nearestFoodDistance = manhattan
+        if nearestFood != (-1, -1):
+            mazeClosestFood = mazeDistance(position, nearestFood, gameState) #calcular la distancia (maze) entre la posición de pacman y la comida mas cercana
+            heuristic = mazeClosestFood
 
-        #el heuristico se calcula sumando la distancia entre las comidas mas lejanas y la distancia del estado actual a la comida mas cercana (multiplicado por 3)
-        if len(problem.heuristicInfo['foodLeft']) > 1:
-            distanceBetweenFood = (abs(problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1][0] - \
-                problem.heuristicInfo['foodLeft'][0][0]) + abs(problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1][1] - \
-                    problem.heuristicInfo['foodLeft'][1][1]))
-            #distanceBetweenFood = mazeDistance(problem.heuristicInfo['foodLeft'][0] ,problem.heuristicInfo['foodLeft'][len(problem.heuristicInfo['foodLeft']) - 1], problem.startingGameState)
-
-            foodCount = len(problem.heuristicInfo['foodLeft'])
-
-            heuristic = (nearestFoodDistance + distanceBetweenFood + foodCount) / 10
-        else:
-            heuristic = nearestFoodDistance
-
-    #print(state[0], problem.heuristicInfo['foodLeft'], heuristic)
     return heuristic# Default to trivial solution
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -610,20 +598,20 @@ class AnyFoodSearchProblem(PositionSearchProblem):
             return False
         util.raiseNotDefined()
 
-def mazeDistance(point1, point2, gameState):
+def mazeDistance(point1, point3, gameState):
     """
     Returns the maze distance between any two points, using the search functions
     you have already built. The gameState can be any game state -- Pacman's
     position in that state is ignored.
 
-    Example usage: mazeDistance( (2,4), (5,6), gameState)
+    Example usage: mazeDistance( (3,4), (5,6), gameState)
 
     This might be a useful helper function for your ApproximateSearchAgent.
     """
     x1, y1 = point1
-    x2, y2 = point2
+    x3, y3 = point3
     walls = gameState.getWalls()
     assert not walls[x1][y1], 'point1 is a wall: ' + str(point1)
-    assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
-    prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
+    assert not walls[x3][y3], 'point3 is a wall: ' + str(point3)
+    prob = PositionSearchProblem(gameState, start=point1, goal=point3, warn=False, visualize=False)
     return len(search.bfs(prob))
