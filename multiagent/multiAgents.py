@@ -12,6 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+from time import sleep
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -76,22 +77,21 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
         #print(newPos, newFood,newGhostStates[0],newScaredTimes)
-        score = 0
-        if len(newFood.asList()) == 0:
-            score = 999999
+        for ghostPos in newGhostPositions:
+            manhattanGhost = abs(newPos[0] - ghostPos[0]) + abs(newPos[1] - ghostPos[1])
+            #print(manhattanGhost)
+            if manhattanGhost <= 1: #si el estado nos pone en peligro de ser comidos intentar evitarlo
+                return 0
+        nearestDistance = 999999
+        for food in newFood.asList():
+            manhattanFood = abs(newPos[0] - food[0]) + abs(newPos[1] - food[1])
+            if manhattanFood < nearestDistance:
+                nearestDistance = manhattanFood
+            
+        if len(newFood.asList()) > 0:
+            return 1 / (len(newFood.asList()) + nearestDistance / 20)
         else:
-            for ghostPos in newGhostPositions:
-                manhattanGhost = abs(newPos[0] - ghostPos[0]) + abs(newPos[1] - ghostPos[1])
-                if manhattanGhost <= 1: #si el estado nos pone en peligro de ser comidos intentar evitarlo
-                    score = 0
-            nearestDistance = 999999
-            for food in newFood.asList():
-                manhattanFood = abs(newPos[0] - food[0]) + abs(newPos[1] - food[1])
-                if manhattanFood < nearestDistance:
-                    nearestDistance = manhattanFood
-            score = nearestDistance * len(newFood.asList())
-            print(score)
-        return score
+            return 999999
 
 def scoreEvaluationFunction(currentGameState):
     """
