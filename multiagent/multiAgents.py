@@ -152,7 +152,76 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #inicializar el valor v
+        v = float("-inf")   
+
+        #inicializar mejor accion
+        mejorAccion = None
+
+        #obtener las acciones legales
+        accionesPac = gameState.getLegalActions(0)
+
+        #obtener los sucesores de cada accion legal 
+        sucesores = {}    
+        for accion in accionesPac:
+            sucesores[gameState.generateSuccessor(0, accion)] = accion
+
+        for sucesor in sucesores:
+            
+            minimaxP = minimax(sucesor, 1, self.depth, self.evaluationFunction)
+
+            if minimaxP > v:
+                v = minimaxP
+                mejorAccion = sucesores[sucesor]
+            
+        
+        return mejorAccion
+
+def minimax(gameState, ghostIndex, profundidad, eval):
+    if gameState.isLose() or gameState.isWin():
+        return eval(gameState)
+    else:
+        v = float("inf")
+        
+        #obtener las acciones legales
+        accionesGhost = gameState.getLegalActions(ghostIndex)
+
+        #obtener los sucesores de cada accion legal 
+        sucesores = {}    
+        for accion in accionesGhost:
+            sucesores[gameState.generateSuccessor(ghostIndex, accion)] = accion
+
+        for sucesor in sucesores:
+            if (gameState.getNumAgents() == ghostIndex+1):
+                v = min(v, maximin(sucesor, profundidad, eval))
+            else:
+                v = min(v, minimax(sucesor, ghostIndex+1, profundidad, eval))
+                
+        return v
+        
+def maximin(gameState, profundidad, eval):
+
+    profundidad = profundidad-1
+
+    if gameState.isLose() or gameState.isWin() or profundidad <= 0:
+        return eval(gameState)
+    else:
+        v = float("-inf")
+        
+        #obtener las acciones legales
+        accionesPac = gameState.getLegalActions(0)
+
+        #obtener los sucesores de cada accion legal 
+        sucesores = {}    
+        for accion in accionesPac:
+            sucesores[gameState.generateSuccessor(0, accion)] = accion
+
+        for sucesor in sucesores:
+            v = max(v, minimax(sucesor, 1, profundidad, eval))
+
+        return v
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
