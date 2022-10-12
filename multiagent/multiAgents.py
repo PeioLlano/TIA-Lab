@@ -233,7 +233,93 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #inicializar el valor v, alfa y beta
+        v = float("-inf")   
+        alfa = float("-inf") 
+        beta = float("inf") 
+
+        #inicializar mejor accion
+        mejorAccion = None
+
+        #obtener las acciones legales
+        accionesPac = gameState.getLegalActions(0)
+
+        #obtener los sucesores de cada accion legal 
+        sucesores = {}    
+        for accion in accionesPac:
+            sucesores[gameState.generateSuccessor(0, accion)] = accion
+
+        for sucesor in sucesores:
+            
+            minimaxP = minimaxAB(sucesor, 1, self.depth, self.evaluationFunction, alfa, beta)
+
+            if minimaxP > v:
+                v = minimaxP
+                mejorAccion = sucesores[sucesor]
+            
+            if v > beta: 
+                return mejorAccion
+
+            alfa = max(alfa, v)
+            
+        
+        return mejorAccion
+
+def minimaxAB(gameState, ghostIndex, profundidad, eval, alfa, beta):
+    if gameState.isLose() or gameState.isWin():
+        return eval(gameState)
+    else:
+        v = float("inf")
+        
+        #obtener las acciones legales
+        accionesGhost = gameState.getLegalActions(ghostIndex)
+
+        #obtener los sucesores de cada accion legal 
+        sucesores = {}    
+        for accion in accionesGhost:
+            sucesores[gameState.generateSuccessor(ghostIndex, accion)] = accion
+
+        for sucesor in sucesores:
+            if (gameState.getNumAgents() == ghostIndex+1):
+                v = min(v, maximinAB(sucesor, profundidad, eval, alfa, beta))
+            else:
+                v = min(v, minimaxAB(sucesor, ghostIndex+1, profundidad, eval, alfa, beta))
+            
+            if v < alfa:
+                return v
+
+            beta = min(beta, v)
+
+        return v
+        
+def maximinAB(gameState, profundidad, eval, alfa, beta):
+
+    profundidad = profundidad-1
+
+    if gameState.isLose() or gameState.isWin() or profundidad <= 0:
+        return eval(gameState)
+    else:
+        v = float("-inf")
+        
+        #obtener las acciones legales
+        accionesPac = gameState.getLegalActions(0)
+
+        #obtener los sucesores de cada accion legal 
+        sucesores = {}    
+        for accion in accionesPac:
+            sucesores[gameState.generateSuccessor(0, accion)] = accion
+
+        for sucesor in sucesores:
+            v = max(v, minimaxAB(sucesor, 1, profundidad, eval, alfa, beta))
+           
+            if v > beta:
+                return v
+
+            alfa = max(alfa, v)
+
+        return v
+
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
