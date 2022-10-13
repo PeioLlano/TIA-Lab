@@ -512,21 +512,20 @@ def foodHeuristic(state, problem):
     "*** YOUR CODE HERE ***"
     gameState = problem.getGameState()
     heuristic = 0
-    if len(foodGrid.asList()) > 0:
+    if len(foodGrid.asList()) > 0: #si todavía queda comida
         nearestFood = (-1, -1)
         nearestFoodDistance = 9999
-        for food in foodGrid.asList(): #encontrar la comida mas cercana mediante la distancia manhattan
+        for food in foodGrid.asList(): #encontrar la comida más cercana mediante la distancia manhattan
             manhattan = util.manhattanDistance(state[0], food)
             if manhattan < nearestFoodDistance:
                 nearestFoodDistance = manhattan
                 nearestFood = food
 
-        if nearestFood != (-1, -1):
+        if nearestFood != (-1, -1): #si hemos encontrado la comida más cercana
             mazeClosestFood = mazeDistance(position, nearestFood, gameState) #calcular la distancia (maze) entre la posición de pacman y la comida mas cercana
             heuristic = mazeClosestFood
 
-    #print(state[0], problem.heuristicInfo['foodLeft'], heuristic)
-    return heuristic# Default to trivial solution
+    return heuristic
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -557,6 +556,10 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        #usando bfs con AnyFoodSearchProblem se va a devolver el camino al primer estado que se encuentre en el que haya comida
+        #como con bfs se busca en anchura, se va buscando en los estados más cercanos al original hasta encontrar uno en el que haya comida
+        #usando dfs no encuentra la comida más cercana, ya que al buscar los nodos en profundidad,
+        #es bastante probable que la primera comida que encuentre no sea la más cercana al estado original 
         return breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -593,7 +596,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        if state in self.food.asList():
+        if state in self.food.asList(): #si pacman llega a una comida estamos en un estado objetivo
             return True
         else:
             return False
