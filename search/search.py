@@ -100,14 +100,15 @@ def depthFirstSearch(problem):
         #nodo -> (((x,y), (lista de corners)),[lista de coordenadas])
         nodo = frontera.pop()
 
-        if problem.isGoalState(nodo[0]):
-            return nodo[1]
 
-        #nuevoNodo -> ((x,y),'coordenada', coste)
-        for nuevoNodo in problem.getSuccessors(nodo[0]):
-            print(nuevoNodo)
-            if nuevoNodo[0] not in examinados:
-                frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]]))
+        if nodo[0] not in examinados:
+
+            if problem.isGoalState(nodo[0]):
+                return nodo[1]
+
+            #nuevoNodo -> ((x,y),'coordenada', coste)
+            for nuevoNodo in problem.getSuccessors(nodo[0]):
+                    frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]]))
 
         examinados[nodo[0]] = True
 
@@ -125,14 +126,14 @@ def breadthFirstSearch(problem):
         #nodo -> (((x,y), (lista de corners)),[lista de coordenadas])
         nodo = frontera.pop()
 
-        if problem.isGoalState(nodo[0]):
-            return nodo[1]
+        if nodo[0] not in examinados:
 
-        #nuevoNodo -> ((x,y),'coordenada', coste)
-        for nuevoNodo in problem.getSuccessors(nodo[0]):
-            if nuevoNodo[0] not in examinados:
-                frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]]))
-                examinados[nuevoNodo[0]] = True
+            if problem.isGoalState(nodo[0]):
+                return nodo[1]
+
+            #nuevoNodo -> ((x,y),'coordenada', coste)
+            for nuevoNodo in problem.getSuccessors(nodo[0]):
+                    frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]]))
 
         examinados[nodo[0]] = True
 
@@ -157,12 +158,12 @@ def uniformCostSearch(problem):
 
         nodo = frontera.pop()
 
-        if problem.isGoalState(nodo[0]):
-            return nodo[1]
-
-
         if nodo[0] not in examinados:
+            
             examinados[nodo[0]] = nodo[2] #añado el coste
+            
+            if problem.isGoalState(nodo[0]):
+                return nodo[1]
 
             # nuevoNodo -> ((x,y),'coordenada', coste)
                 # nuevoNodo[0] -> (x,y)
@@ -173,7 +174,6 @@ def uniformCostSearch(problem):
                 # nuevoNodo[1] -> coordenada
                 # nuevoNodo[2] -> coste
             for nuevoNodo in problem.getSuccessors(nodo[0]):
-                if nuevoNodo[0] not in examinados:
                     frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]], nuevoNodo[2]+nodo[2]), nuevoNodo[2]+nodo[2])
         
     return []
@@ -205,12 +205,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
         nodo = frontera.pop()
 
-        if problem.isGoalState(nodo[0]):
-            return nodo[1]
-
-
         if nodo[0] not in examinados:
             examinados[nodo[0]] = nodo[2] #añado el coste
+
+            if problem.isGoalState(nodo[0]):
+                return nodo[1]
 
             # nuevoNodo -> ((x,y),'coordenada', coste)
                 # nuevoNodo[0] -> (x,y)
@@ -221,25 +220,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 # nuevoNodo[1] -> coordenada
                 # nuevoNodo[2] -> coste
             for nuevoNodo in problem.getSuccessors(nodo[0]):
-                if nuevoNodo[0] not in examinados:
                     frontera.push((nuevoNodo[0], nodo[1] + [nuevoNodo[1]], nuevoNodo[2]+nodo[2]), nuevoNodo[2]+nodo[2]+heuristic(nuevoNodo[0],problem))
-    coordenadas = []
 
-    '''
-    print('Encontrado? ' + str(encontrado))
-    print('Nodo final: ' + str(nodo))
-    print('Coste: ' + str(camino[nodo[0]][1]))
-    
-    dictionary_items = camino.items()
-    for item in dictionary_items:
-        print(item)
-    '''
-        
-    while nodo[0] != problem.getStartState() and encontrado:
-        coordenadas.insert(0,nodo[1])
-        nodo = camino[nodo[0]][0]
-
-    return coordenadas 
+    return [] 
 
 
 # Abbreviations
