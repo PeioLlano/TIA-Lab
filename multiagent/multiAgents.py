@@ -12,6 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+from time import sleep
 from util import manhattanDistance
 from game import Directions
 import random, util
