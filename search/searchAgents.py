@@ -298,16 +298,25 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return (self.startingPosition, self.corners)
+        # ((x,y), ((1,1), (1,top), (right, 1), (right, top)))
+        return (self.startingPosition, self.corners) 
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        lista = list(state[1])
-        if(state[0] in lista):
-            lista.remove(state[0])
+        # Pasar la tupla de esquinas a lista para facilitar operaciones
+        lista = list(state[1]) 
+
+        # En caso de que el nodo sea una esquina
+        if(state[0] in lista): 
+
+            # Quitar la esquina de la lista
+            lista.remove(state[0]) 
+
+        # Si la longitud de la lista es 0 devorver true,
+        # en caso contrario devolver false
         return len(lista) == 0
 
     def getSuccessors(self, state):
@@ -331,9 +340,14 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x,y = state[0]
+
+            # Pasar cada una de las dos direcciones a variables separadas
+            x,y = state[0]  
+            # Pasar la tupla de esquinas a lista para facilitar operaciones
             lista = list(state[1])
+            # En caso de que el nodo sea una esquina
             if state[0] in lista:
+                # Quitar la esquina de la lista
                 lista.remove((x,y))
 
             dx, dy = Actions.directionToVector(action)
@@ -341,6 +355,7 @@ class CornersProblem(search.SearchProblem):
             if not self.walls[nextx][nexty]:
                 nextState = (nextx, nexty)
                 cost = self.costFn(nextState)
+                # Añadir a sucesores la lista de esquina de nuevo en forma de tupla
                 successors.append( ( (nextState, tuple(lista)), action, cost) )
             
         self._expanded += 1 # DO NOT CHANGE
