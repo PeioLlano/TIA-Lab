@@ -168,16 +168,16 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         for sucesor in sucesores:
             
-            minP = min(sucesor, 1, self.depth, self.evaluationFunction)
+            minimaxP = minimax(sucesor, 1, self.depth, self.evaluationFunction)
 
-            if minP > v:
-                v = minP
+            if minimaxP > v:
+                v = minimaxP
                 mejorAccion = sucesores[sucesor]
             
         
         return mejorAccion
 
-def min(gameState, ghostIndex, profundidad, eval):
+def minimax(gameState, ghostIndex, profundidad, eval):
     if gameState.isLose() or gameState.isWin():
         return eval(gameState)
     else:
@@ -193,13 +193,13 @@ def min(gameState, ghostIndex, profundidad, eval):
 
         for sucesor in sucesores:
             if (gameState.getNumAgents() == ghostIndex+1):
-                v = min(v, max(sucesor, profundidad, eval))
+                v = min(v, maximin(sucesor, profundidad, eval))
             else:
-                v = min(v, min(sucesor, ghostIndex+1, profundidad, eval))
+                v = min(v, minimax(sucesor, ghostIndex+1, profundidad, eval))
                 
         return v
         
-def max(gameState, profundidad, eval):
+def maximin(gameState, profundidad, eval):
 
     profundidad = profundidad-1
 
@@ -217,7 +217,7 @@ def max(gameState, profundidad, eval):
             sucesores[gameState.generateSuccessor(0, accion)] = accion
 
         for sucesor in sucesores:
-            v = max(v, min(sucesor, 1, profundidad, eval))
+            v = max(v, minimax(sucesor, 1, profundidad, eval))
 
         return v
 
@@ -251,10 +251,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         for sucesor in sucesores:
             
-            minP = minAB(sucesor, 1, self.depth, self.evaluationFunction, alfa, beta)
+            minimaxP = minimaxAB(sucesor, 1, self.depth, self.evaluationFunction, alfa, beta)
 
-            if minP >= v:
-                v = minP
+            if minimaxP >= v:
+                v = minimaxP
                 mejorAccion = sucesores[sucesor]
 
             alfa = max(alfa, v)
@@ -262,7 +262,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         
         return mejorAccion
 
-def minAB(gameState, ghostIndex, profundidad, eval, alfa, beta):
+def minimaxAB(gameState, ghostIndex, profundidad, eval, alfa, beta):
     if gameState.isLose() or gameState.isWin():
         return eval(gameState)
     else:
@@ -278,9 +278,9 @@ def minAB(gameState, ghostIndex, profundidad, eval, alfa, beta):
 
         for sucesor in sucesores:
             if (gameState.getNumAgents() == ghostIndex+1):
-                v = min(v, maxAB(sucesor, profundidad, eval, alfa, beta))
+                v = min(v, maximinAB(sucesor, profundidad, eval, alfa, beta))
             else:
-                v = min(v, minAB(sucesor, ghostIndex+1, profundidad, eval, alfa, beta))
+                v = min(v, minimaxAB(sucesor, ghostIndex+1, profundidad, eval, alfa, beta))
             
             if v < alfa:
                 return v
@@ -289,7 +289,7 @@ def minAB(gameState, ghostIndex, profundidad, eval, alfa, beta):
 
         return v
         
-def maxAB(gameState, profundidad, eval, alfa, beta):
+def maximinAB(gameState, profundidad, eval, alfa, beta):
 
     profundidad = profundidad-1
 
@@ -307,7 +307,7 @@ def maxAB(gameState, profundidad, eval, alfa, beta):
             sucesores[gameState.generateSuccessor(0, accion)] = accion
 
         for sucesor in sucesores:
-            v = max(v, minAB(sucesor, 1, profundidad, eval, alfa, beta))
+            v = max(v, minimaxAB(sucesor, 1, profundidad, eval, alfa, beta))
            
             if v > beta:
                 return v
@@ -348,18 +348,18 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         for sucesor in sucesores:
             
-            minP = expectimax(sucesor, self.depth, 1, self.evaluationFunction)
+            minimaxP = expectimax(sucesor, self.depth, 1, self.evaluationFunction)
 
-            #print(str(sucesor) + ': ' + str(minP))
+            #print(str(sucesor) + ': ' + str(minimaxP))
 
-            if minP > v:
-                v = minP
+            if minimaxP > v:
+                v = minimaxP
                 #print('Mejor accion: ' + sucesores[sucesor])
                 mejorAccion = sucesores[sucesor]
 
         return mejorAccion
 
-def maxEx(gameState, profundidad, eval):
+def maximinEx(gameState, profundidad, eval):
 
     profundidad = profundidad-1
 
@@ -401,7 +401,7 @@ def expectimax(gameState, profundidad, ghostIndex, eval):
 
         for sucesor in sucesores:
             if (gameState.getNumAgents() == ghostIndex+1):
-                v += maxEx(sucesor, profundidad, eval)
+                v += maximinEx(sucesor, profundidad, eval)
             else:
                 v += expectimax(sucesor,profundidad, ghostIndex+1, eval)
 
