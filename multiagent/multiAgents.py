@@ -12,7 +12,9 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+from cmath import inf, sqrt
 from time import sleep
+from turtle import screensize
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -386,6 +388,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
             return (v*probabilidad)
 
+
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -394,7 +397,47 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacmanPos = currentGameState.getPacmanPosition()
+    foodList = currentGameState.getFood().asList()
+    foodCount = currentGameState.getNumFood()
+    score = currentGameState.getScore()
+    ghostPositions = currentGameState.getGhostPositions()
+    ghostStates = currentGameState.getGhostStates()
+    capsules = currentGameState.getCapsules()
+    scaredTime = ghostStates[0].scaredTimer
+
+    if currentGameState.isWin():
+        return 999999
+    if currentGameState.isLose():
+        return 0
+
+    # Calcular la distancia al fantasma más cercano
+    nearestGhostDistance = float(inf)
+    for ghostPos in ghostPositions:
+        manhattanGhost = abs(pacmanPos[0] - ghostPos[0]) + abs(pacmanPos[1] - ghostPos[1])
+        if manhattanGhost < nearestGhostDistance:
+            nearestGhostDistance = manhattanGhost
+
+    # Calcular la distancia a la comida más cercana
+    nearestFoodDistance = float(inf)
+    for food in foodList:
+        manhattanFood = abs(pacmanPos[0] - food[0]) + abs(pacmanPos[1] - food[1])
+        if manhattanFood < nearestFoodDistance:
+            nearestFoodDistance = manhattanFood
+
+    # Calcular la distancia a la cápsula más cercana
+    nearestCapsuleDistance = float(inf)
+    for capsule in capsules:
+        manhattanCapsule = abs(pacmanPos[0] - capsule[0]) + abs(pacmanPos[1] - capsule[1])
+        if manhattanCapsule < nearestCapsuleDistance:
+            nearestCapsuleDistance = manhattanCapsule
+
+    # Si hay fantasmas asustados, intentar que pacman se coma al fantasma más cercano
+    if scaredTime > 0:
+        return 2000/nearestGhostDistance + 10*score
+    else:
+        return 10*score + 4/foodCount + 2/nearestFoodDistance + nearestGhostDistance/4 + 5/nearestCapsuleDistance
+
 
 # Abbreviation
 better = betterEvaluationFunction
