@@ -78,22 +78,29 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "* YOUR CODE HERE *"
-        #print(newPos, newFood,newGhostStates[0],newScaredTimes)
+        if successorGameState.isWin():
+            return float(inf)
+        if successorGameState.isLose():
+            return float(-inf)
+            
+        # Calcular distancia al fantasma más cercano
+        nearestGhostDistance = float(inf)
         for ghostPos in newGhostPositions:
             manhattanGhost = abs(newPos[0] - ghostPos[0]) + abs(newPos[1] - ghostPos[1])
-            #print(manhattanGhost)
-            if manhattanGhost <= 1: #si el estado nos pone en peligro de ser comidos intentar evitarlo
-                return 0
-        nearestDistance = 999999
+            if manhattanGhost < nearestGhostDistance:
+                nearestGhostDistance = manhattanGhost
+        # Si el estado nos pone en peligro de ser comidos intentar evitarlo
+        if nearestGhostDistance <= 1:
+            return 0
+
+        # Calcular distancia a la comida más cercana
+        nearestFoodDistance = float(inf)
         for food in newFood.asList():
             manhattanFood = abs(newPos[0] - food[0]) + abs(newPos[1] - food[1])
-            if manhattanFood < nearestDistance:
-                nearestDistance = manhattanFood
-            
-        if len(newFood.asList()) > 0:
-            return 1 / (len(newFood.asList()) + nearestDistance / 20)
-        else:
-            return 999999
+            if manhattanFood < nearestFoodDistance:
+                nearestFoodDistance = manhattanFood
+                
+        return 1 / (len(newFood.asList()) + nearestFoodDistance / 20)
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -407,9 +414,9 @@ def betterEvaluationFunction(currentGameState):
     scaredTime = ghostStates[0].scaredTimer
 
     if currentGameState.isWin():
-        return 999999
+        return float(inf)
     if currentGameState.isLose():
-        return 0
+        return float(-inf)
 
     # Calcular la distancia al fantasma más cercano
     nearestGhostDistance = float(inf)
@@ -417,6 +424,10 @@ def betterEvaluationFunction(currentGameState):
         manhattanGhost = abs(pacmanPos[0] - ghostPos[0]) + abs(pacmanPos[1] - ghostPos[1])
         if manhattanGhost < nearestGhostDistance:
             nearestGhostDistance = manhattanGhost
+    
+    # Si hay fantasmas asustados, intentar que pacman se coma al fantasma más cercano
+    if scaredTime > 0:
+        return 2000/nearestGhostDistance + 10*score
 
     # Calcular la distancia a la comida más cercana
     nearestFoodDistance = float(inf)
@@ -432,11 +443,7 @@ def betterEvaluationFunction(currentGameState):
         if manhattanCapsule < nearestCapsuleDistance:
             nearestCapsuleDistance = manhattanCapsule
 
-    # Si hay fantasmas asustados, intentar que pacman se coma al fantasma más cercano
-    if scaredTime > 0:
-        return 2000/nearestGhostDistance + 10*score
-    else:
-        return 10*score + 4/foodCount + 2/nearestFoodDistance + nearestGhostDistance/4 + 5/nearestCapsuleDistance
+    return score + 4/foodCount + 2/nearestFoodDistance + nearestGhostDistance/4 + 5/nearestCapsuleDistance
 
 
 # Abbreviation
