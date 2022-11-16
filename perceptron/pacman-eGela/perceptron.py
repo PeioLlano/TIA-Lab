@@ -12,11 +12,14 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-# Perceptron implementation
-import util
 import pdb
 
+import util
+
 PRINT = True
+
+
+# Perceptron implementation
 
 class PerceptronClassifier:
     """
@@ -25,19 +28,21 @@ class PerceptronClassifier:
     Note that the variable 'datum' in this code refers to a counter of features
     (not to a raw samples.Datum).
     """
-    def __init__( self, legalLabels, max_iterations):
+
+    def __init__(self, legalLabels, max_iterations):
         self.legalLabels = legalLabels
         self.type = "perceptron"
         self.max_iterations = max_iterations
         self.weights = {}
+        self.features = None
         for label in legalLabels:
-            self.weights[label] = util.Counter() # this is the data-structure you should use
+            self.weights[label] = util.Counter()  # this is the data-structure you should use
 
     def setWeights(self, weights):
-        assert len(weights) == len(self.legalLabels);
-        self.weights = weights;
+        assert len(weights) == len(self.legalLabels)
+        self.weights = weights
 
-    def train( self, trainingData, trainingLabels, validationData, validationLabels ):
+    def train(self, trainingData, trainingLabels, validationData, validationLabels):
         """
         The training loop for the perceptron passes through the training data several
         times and updates the weight vector for each label based on classification errors.
@@ -49,14 +54,14 @@ class PerceptronClassifier:
         (and thus represents a vector a values).
         """
 
-        self.features = trainingData[0].keys() # could be useful later
+        self.features = trainingData[0].keys()  # could be useful later
         # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
         # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
 
         for iteration in range(self.max_iterations):
-            print "Starting iteration ", iteration, "..."
-            for i in range(len(trainingData)):#training data
-                pdb.set_trace()#esto es un break point para que puedas comprobar el formato de los datos
+            print("Starting iteration ", iteration, "...")
+            for i in range(len(trainingData)):  # training data
+                pdb.set_trace()  # esto es un break point para que puedas comprobar el formato de los datos
                 ########################################################################################
                 # 1. i es el indice de un ejemplo (un item, f(x) de un ejemplo) del conjunto de entrenamiento.
                 # 2. Asi pues, en cada vuelta de este loop se trata un solo ejemplo
@@ -67,9 +72,9 @@ class PerceptronClassifier:
                 #          Recordad tambien que es una clasificacion multiclase en este caso. Hay tantas clases como nos marca el atributo self.legalLabels
                 #########################################################################################
                 "*** YOUR CODE HERE ***"
+                util.raiseNotDefined()
 
-
-    def classify(self, data ):
+    def classify(self, data):
         """
         Classifies each datum as the label that most closely matches the prototype vector
         for that label.  See the project description for details.
@@ -79,11 +84,10 @@ class PerceptronClassifier:
         guesses = []
         for datum in data:
             vectors = util.Counter()
-            for l in self.legalLabels:
-                vectors[l] = self.weights[l] * datum
+            for label in self.legalLabels:
+                vectors[label] = self.weights[label] * datum
             guesses.append(vectors.argMax())
         return guesses
-
 
     def findHighWeightFeatures(self, label):
         """

@@ -18,8 +18,9 @@ import random
 import game
 import util
 
+
 class LeftTurnAgent(game.Agent):
-    "An agent that turns left at every opportunity"
+    """An agent that turns left at every opportunity"""
 
     def getAction(self, state):
         legal = state.getLegalPacmanActions()
@@ -32,10 +33,12 @@ class LeftTurnAgent(game.Agent):
         if Directions.LEFT[left] in legal: return Directions.LEFT[left]
         return Directions.STOP
 
+
 class GreedyAgent(Agent):
     def __init__(self, evalFn="scoreEvaluation"):
+        super().__init__()
         self.evaluationFunction = util.lookup(evalFn, globals())
-        assert self.evaluationFunction != None
+        assert self.evaluationFunction is not None
 
     def getAction(self, state):
         # Generate candidate actions
@@ -47,6 +50,7 @@ class GreedyAgent(Agent):
         bestScore = max(scored)[0]
         bestActions = [pair[1] for pair in scored if pair[0] == bestScore]
         return random.choice(bestActions)
+
 
 def scoreEvaluation(state):
     return state.getScore()
