@@ -16,6 +16,7 @@
 import util
 from perceptron import PerceptronClassifier
 from pacman import GameState
+import numpy as np
 
 PRINT = True
 
@@ -45,8 +46,30 @@ class PerceptronClassifierPacman(PerceptronClassifier):
         # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
         # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
 
+
+        #print(trainingData)
+        #print(trainingLabels)
+        #print(validationData)
+        #print(validationLabels)
+
+
         for iteration in range(self.max_iterations):
             print("Starting iteration ", iteration, "...")
             for i in range(len(trainingData)):
                 "*** YOUR CODE HERE ***"
-                util.raiseNotDefined()
+                score = {}
+                for label in self.legalLabels:
+                    if label in trainingData[i][1]:
+                        #print(trainingData[i][1])
+                        score[label] = trainingData[i][0][label]['foodCount'] * self.weights[label]
+
+                print(len(score))
+                if len(score) > 0:
+                    prediccion = max(score, key=score.get)
+
+                    if prediccion != trainingLabels[i]:
+                        print("Prediccion incorrecta: " + prediccion + ", " + trainingLabels[i])
+                        self.weights[trainingLabels[i]] += trainingData[i][0][trainingLabels[i]]['foodCount']
+                        self.weights[prediccion] -= trainingData[i][0][prediccion]['foodCount']
+                    else:
+                        print("prediccion correcta: " + prediccion + ", " + trainingLabels[i])
