@@ -58,10 +58,18 @@ class PerceptronClassifier:
         # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
         # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
 
+        #print('Legal labels: ' + str(self.legalLabels))
+        #print('Training labels: ' + str(trainingLabels))
+        #print('Validation Data: ' + str(validationData))
+        #print('Validation labels: ' + str(validationLabels))
+        #print('Pesos: ' + str(self.weights))
+
+
+
         for iteration in range(self.max_iterations):
             print("Starting iteration ", iteration, "...")
             for i in range(len(trainingData)):  # training data
-                pdb.set_trace()  # esto es un break point para que puedas comprobar el formato de los datos
+                #pdb.set_trace()  # esto es un break point para que puedas comprobar el formato de los datos
                 ########################################################################################
                 # 1. i es el indice de un ejemplo (un item, f(x) de un ejemplo) del conjunto de entrenamiento.
                 # 2. Asi pues, en cada vuelta de este loop se trata un solo ejemplo
@@ -71,7 +79,24 @@ class PerceptronClassifier:
                 #          La dimension del vector w tambien es self.features, es decir, habra tantos pesos en w_rasgo dentro de w como rasgos haya en cada item de ejemplo
                 #          Recordad tambien que es una clasificacion multiclase en este caso. Hay tantas clases como nos marca el atributo self.legalLabels
                 #########################################################################################
-                
+                unekoLabel = trainingLabels[i]
+                unekoData = trainingData[i]
+                labelPosibles = self.legalLabels
+
+                resultados = {}
+                for label in labelPosibles:
+                    resultados[label] = self.weights[label].__mul__(unekoData)
+
+                prediccion = max(resultados, key=resultados.get)
+
+                #print(resultados)
+                #print('Comparacion --> Uneko label: ' + str(unekoLabel))
+                #print('            --> Prediccion label: ' + str(prediccion))
+
+                if(prediccion != unekoLabel):
+                    self.weights[prediccion] -= unekoData
+                    self.weights[unekoLabel] += unekoData
+                    
                 
 
     def classify(self, data):
