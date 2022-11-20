@@ -57,19 +57,20 @@ class PerceptronClassifierPacman(PerceptronClassifier):
             print("Starting iteration ", iteration, "...")
             for i in range(len(trainingData)):
                 "*** YOUR CODE HERE ***"
-                score = {}
-                for label in self.legalLabels:
-                    if label in trainingData[i][1]:
-                        #print(trainingData[i][1])
-                        score[label] = trainingData[i][0][label]['foodCount'] * self.weights[label]
+                unekoLabel = trainingLabels[i]
+                unekoData = trainingData[i]
 
-                print(len(score))
-                if len(score) > 0:
-                    prediccion = max(score, key=score.get)
+                prediccion = self.classify([unekoData])
+                prediccion = prediccion[0]
+                #print(prediccion)
 
-                    if prediccion != trainingLabels[i]:
-                        print("Prediccion incorrecta: " + prediccion + ", " + trainingLabels[i])
-                        self.weights[trainingLabels[i]] += trainingData[i][0][trainingLabels[i]]['foodCount']
-                        self.weights[prediccion] -= trainingData[i][0][prediccion]['foodCount']
-                    else:
-                        print("prediccion correcta: " + prediccion + ", " + trainingLabels[i])
+                if prediccion != unekoLabel:
+                    print("Prediccion incorrecta: " + prediccion + ", " + unekoLabel)
+                    print(self.weights,' + ',unekoData[0][prediccion])
+                    self.weights += unekoData[0][unekoLabel]
+                    print(self.weights,' - ',unekoData[0][unekoLabel])
+                    self.weights -= unekoData[0][prediccion]
+                    print('\t=', self.weights)
+                else:
+                    print("prediccion correcta: " + prediccion + ", " + unekoLabel)
+                    
