@@ -46,13 +46,6 @@ class PerceptronClassifierPacman(PerceptronClassifier):
         # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
         # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
 
-
-        #print(trainingData)
-        #print(trainingLabels)
-        #print(validationData)
-        #print(validationLabels)
-
-
         for iteration in range(self.max_iterations):
             print("Starting iteration ", iteration, "...")
             for i in range(len(trainingData)):
@@ -62,15 +55,8 @@ class PerceptronClassifierPacman(PerceptronClassifier):
 
                 prediccion = self.classify([unekoData])
                 prediccion = prediccion[0]
-                #print(prediccion)
 
                 if prediccion != unekoLabel:
-                    print("Prediccion incorrecta: " + prediccion + ", " + unekoLabel)
-                    print(self.weights,' + ',unekoData[0][prediccion])
                     self.weights += unekoData[0][unekoLabel]
-                    print(self.weights,' - ',unekoData[0][unekoLabel])
                     self.weights -= unekoData[0][prediccion]
-                    print('\t=', self.weights)
-                else:
-                    print("prediccion correcta: " + prediccion + ", " + unekoLabel)
                     
