@@ -15,6 +15,7 @@
 # This file contains feature extraction methods and harness
 # code for data classification
 
+from math import inf
 import sys
 import traceback
 
@@ -66,9 +67,6 @@ def enhancedFeatureExtractorDigit(datum):
     """
     features = basicFeatureExtractorDigit(datum)
 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
     return features
 
 
@@ -114,32 +112,30 @@ def enhancedPacmanFeatures(state, action):
     """
     features = util.Counter()
     state = state.generateSuccessor(0, action)
-    foods = state.getFood().asList()
-    pac = state.getPacmanPosition()
+    foodList = state.getFood().asList()
+    pacman = state.getPacmanPosition()
     ghostPositions = state.getGhostPositions()
 
     "*** YOUR CODE HERE ***"
 
-    minD = 9999
-    for food in foods:
-        d = util.manhattanDistance(food, pac)
-        minD = min(d, minD)
+    minFoodDistance = float(inf)
+    for food in foodList:
+        manhattanFood = util.manhattanDistance(food, pacman)
+        if manhattanFood < minFoodDistance:
+            minFoodDistance = manhattanFood
 
-    if minD != 9999:
-        features["closest food"] = 1.0 / minD  # con esto te da 4
-        # features["closest food"] = minD#con esto te da 2 puntos
+    if len(foodList) > 0: # Si hay alguna comida
+        features["nearest food"] = minFoodDistance
     else:
-        features["closest food"] = 2
+        features["nearest food"] = -1
 
-    # if features["closest food"]==0:
-    # pdb.set_trace()
+    minGhostDistance = float(inf)
+    for ghost in ghostPositions:
+        manhattanGhost = util.manhattanDistance(pacman, ghost)
+        if manhattanGhost < minGhostDistance:
+            minGhostDistance = manhattanGhost
 
-    minD = 10000000000
-    for ghost in state.getGhostPositions():
-        d = util.manhattanDistance(pac, ghost)
-        minD = min(d, minD)
-
-    features["closest ghost"] = minD  # 1/pow(minD,2)
+    features["nearest ghost"] = minGhostDistance
 
     return features
 
