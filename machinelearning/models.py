@@ -28,8 +28,7 @@ class PerceptronModel(object):
         Deberiais obtener el producto escalar (o producto punto) que es "equivalente" a la distancia del coseno
         """
         "*** YOUR CODE HERE ***"
-
-
+        return nn.DotProduct(self.get_weights(), x)
 
 
     def get_prediction(self, x):
@@ -40,8 +39,10 @@ class PerceptronModel(object):
         Returns: 1 or -1
         """
         "*** YOUR CODE HERE ***"
-
-
+        if nn.as_scalar(self.run(x)) >= 0:
+            return 1
+        else:
+            return -1
 
 
     def train(self, dataset):
@@ -50,9 +51,21 @@ class PerceptronModel(object):
         Hasta que TODOS los ejemplos del train esten bien clasificados. Es decir, hasta que la clase predicha en se corresponda con la real en TODOS los ejemplos del train
         """
         "*** YOUR CODE HERE ***"
+        
+        convergencia = False
 
+        while not convergencia:
 
+            clean = True
+            
+            for x, y in dataset.iterate_once(1):
 
+                if self.get_prediction(x) != nn.as_scalar(y):
+                    nn.Parameter.update(self.w, x, nn.as_scalar(y))
+                    clean = False
+
+            if clean:
+                convergencia = True
 
 
 class RegressionModel(object):
