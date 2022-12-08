@@ -87,7 +87,12 @@ class RegressionModel(object):
         # self.lr = -0.01
         #
         "*** YOUR CODE HERE ***"
-
+        self.batch_size = 20
+        self.w0 = nn.Parameter(1, 10)
+        self.b0 = nn.Parameter(1, 10)
+        self.w1 = nn.Parameter(10, 1)
+        self.b1 = nn.Parameter(1, 1)
+        self.lr = 0.01
 
 
 
@@ -103,7 +108,11 @@ class RegressionModel(object):
             Como es un modelo de regresion, cada valor y tambien tendra un unico valor
         """
         "*** YOUR CODE HERE ***"
-
+        capa0 = nn.Linear(x, self.w0)
+        capa0 = nn.AddBias(capa0, self.b0)
+        capa1 = nn.Linear(capa0, self.w1)
+        capa1 = nn.AddBias(capa1, self.b1)
+        return capa1
 
 
 
@@ -123,7 +132,7 @@ class RegressionModel(object):
                 return nn.SquareLoss(self.run(x),ANNADE LA VARIABLE QUE ES NECESARIA AQUI), para medir el error, necesitas comparar el resultado de tu prediccion con .... que?
         """
         "*** YOUR CODE HERE ***"
-
+        return nn.SquareLoss(self.run(x), y)
 
 
 
@@ -143,7 +152,14 @@ class RegressionModel(object):
             #UNA FUNCION DE LA LA CUAL SE  PUEDE CALCULAR LA DERIVADA (GRADIENTE)
 
             "*** YOUR CODE HERE ***"
+            for x, y in dataset.iterate_once(1):
+                y_pred = self.run(x)
+                loss = self.get_loss(y_pred, y)
+                grad_wrt_w0, grad_wrt_w1, grad_wrt_b0, grad_wrt_b1 = nn.gradients(loss, [self.w0,self.w1,self.b0,self.b1])
+                #print(grad_wrt_w0,grad_wrt_w1,grad_wrt_b0,grad_wrt_b1)
+                nn.Parameter.update(grad_wrt_w1, multiplier=self.lr)
 
+                           
 
 
 
