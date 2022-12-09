@@ -88,11 +88,11 @@ class RegressionModel(object):
         #
         "*** YOUR CODE HERE ***"
         self.batch_size = 20
-        self.w0 = nn.Parameter(1, 10)
-        self.b0 = nn.Parameter(1, 10)
-        self.w1 = nn.Parameter(10, 1)
+        self.w0 = nn.Parameter(1, 40)
+        self.b0 = nn.Parameter(1, 40)
+        self.w1 = nn.Parameter(40, 1)
         self.b1 = nn.Parameter(1, 1)
-        self.lr = 0.01
+        self.lr = -0.01
 
 
 
@@ -110,6 +110,8 @@ class RegressionModel(object):
         "*** YOUR CODE HERE ***"
         capa0 = nn.Linear(x, self.w0)
         capa0 = nn.AddBias(capa0, self.b0)
+        capa0 = nn.ReLU(capa0)
+
         capa1 = nn.Linear(capa0, self.w1)
         capa1 = nn.AddBias(capa1, self.b1)
         return capa1
@@ -143,7 +145,7 @@ class RegressionModel(object):
         Trains the model.
         
         """
-        
+        pesos_bias = [self.w0,self.w1,self.b0,self.b1]
         batch_size = self.batch_size
         total_loss = 100000
         while total_loss > 0.02:
@@ -151,17 +153,18 @@ class RegressionModel(object):
             #ACTUALIZAR LOS PESOS EN BASE AL ERROR loss = self.get_loss(x, y) QUE RECORDAD QUE GENERA
             #UNA FUNCION DE LA LA CUAL SE  PUEDE CALCULAR LA DERIVADA (GRADIENTE)
 
+            total_loss = 0
             "*** YOUR CODE HERE ***"
-            for x, y in dataset.iterate_once(1):
-                y_pred = self.run(x)
-                loss = self.get_loss(y_pred, y)
-                grad_wrt_w0, grad_wrt_w1, grad_wrt_b0, grad_wrt_b1 = nn.gradients(loss, [self.w0,self.w1,self.b0,self.b1])
+            for x, y in dataset.iterate_once(batch_size):
+                #y_pred = self.run(x) --> Sino se lo aplicas dos veces
+                loss = self.get_loss(x, y)
+
+                total_loss += nn.as_scalar(loss) #--> No se porque va hasta 0.002
+
+                gradientes= nn.gradients(loss, pesos_bias)
                 #print(grad_wrt_w0,grad_wrt_w1,grad_wrt_b0,grad_wrt_b1)
-                nn.Parameter.update(grad_wrt_w1, multiplier=self.lr)
-
-                           
-
-
+                for i in range(len(pesos_bias)):
+                    pesos_bias[i].update(gradientes[i], multiplier=self.lr)                           
 
 
             
@@ -189,7 +192,23 @@ class DigitClassificationModel(object):
         pixel_vector_length = pixel_dim_size* pixel_dim_size
  
         "*** YOUR CODE HERE ***"
+        self.batch_size = 20
+        self.w0 = nn.Parameter(784, 240)
+        self.b0 = nn.Parameter(1, 240)
 
+        self.w1 = nn.Parameter(240, 180)
+        self.b1 = nn.Parameter(1, 180)
+
+        self.w2 = nn.Parameter(180, 120)
+        self.b2 = nn.Parameter(1, 120)
+
+        self.w3 = nn.Parameter(120, 60)
+        self.b3 = nn.Parameter(1, 60)
+
+        self.w4 = nn.Parameter(60, output_size)
+        self.b4 = nn.Parameter(1, output_size)
+
+        self.lr = -0.02
      
 
     def run(self, x):
@@ -208,7 +227,25 @@ class DigitClassificationModel(object):
             output_size = 10 # TAMANO EQUIVALENTE AL NUMERO DE CLASES DADO QUE QUIERES OBTENER 10 "COSENOS"
         """
         "*** YOUR CODE HERE ***"
+        capa0 = nn.Linear(x, self.w0)
+        capa0 = nn.AddBias(capa0, self.b0)
+        capa0 = nn.ReLU(capa0)
 
+        capa1 = nn.Linear(capa0, self.w1)
+        capa1 = nn.AddBias(capa1, self.b1)
+        capa1 = nn.ReLU(capa1)
+
+        capa2 = nn.Linear(capa1, self.w2)
+        capa2 = nn.AddBias(capa2, self.b2)
+        capa2 = nn.ReLU(capa2)
+
+        capa3 = nn.Linear(capa2, self.w3)
+        capa3 = nn.AddBias(capa3, self.b3)
+        capa3 = nn.ReLU(capa3)
+
+        capa4 = nn.Linear(capa3, self.w4)
+        capa4 = nn.AddBias(capa4, self.b4)
+        return capa4
 
 
 
@@ -245,11 +282,20 @@ class DigitClassificationModel(object):
         EL NUM DE EJEMPLOS DEL TRAIN QUE SE HAN CLASIFICADO CORRECTAMENTE 
         """
         batch_size = self.batch_size
+        pesos_bias = [self.w0,self.w1,self.w2,self.w3,self.w4,self.b0,self.b1,self.b2,self.b3,self.b4]
         while dataset.get_validation_accuracy() < 0.97:
             #ITERAR SOBRE EL TRAIN EN LOTES MARCADOS POR EL BATCH SIZE COMO HABEIS HECHO EN LOS OTROS EJERCICIOS
             #ACTUALIZAR LOS PESOS EN BASE AL ERROR loss = self.get_loss(x, y) QUE RECORDAD QUE GENERA
             #UNA FUNCION DE LA LA CUAL SE  PUEDE CALCULAR LA DERIVADA (GRADIENTE)
             "*** YOUR CODE HERE ***"
+            for x, y in dataset.iterate_once(batch_size):
+
+                loss = self.get_loss(x, y)
+
+                gradientes= nn.gradients(loss, pesos_bias)
+
+                for i in range(len(pesos_bias)):
+                    pesos_bias[i].update(gradientes[i], multiplier=self.lr) 
 
 
 
