@@ -43,6 +43,7 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
+        self.qValues = util.Counter() # A Counter is a dict with default 0
 
     def getQValue(self, state, action):
         """
@@ -51,7 +52,7 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.qValues[(state, action)]
 
 
     def computeValueFromQValues(self, state):
@@ -62,7 +63,12 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        Qvalue = 0.0
+
+        for moviminetosPos in self.getLegalActions(state):
+          Qvalue = max(Qvalue, self.getQValue(state, moviminetosPos))
+        print(Qvalue)
+        return Qvalue
 
     def computeActionFromQValues(self, state):
         """
@@ -71,7 +77,14 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        Qvalues = util.Counter()
+        if len(self.getLegalActions(state) >= 0):
+          for moviminetosPos in self.getLegalActions(state):
+            Qvalues[moviminetosPos] = self.getQValue(state, moviminetosPos)
+
+          return Qvalues.argMax
+        else:
+          return None
 
     def getAction(self, state):
         """
