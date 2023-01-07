@@ -96,7 +96,7 @@ class QLearningAgent(ReinforcementAgent):
               # Añadimos nueva acion optima (sin borrar anteriores)
               bestActionList.append(moviminetosPos)
 
-            # Elegimos una accion optima aleatoriamente
+          # Elegimos una accion optima aleatoriamente
           bestAction = random.choice(bestActionList)
           return bestAction
 
