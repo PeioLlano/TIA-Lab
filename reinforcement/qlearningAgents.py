@@ -80,14 +80,24 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        bestAction = None
-        QvalueOpt = -99999.99
-        if state != 'TERMINAL_STATE':
+        if state == 'TERMINAL_STATE':
+          return None
+        else:
+          QvalueOpt = -99999.99
+          # Las acciones que consigan el QValue optimo se guardaran en una lista.
+          bestActionList = [None]
           for moviminetosPos in self.getLegalActions(state):
             if self.getQValue(state, moviminetosPos) > QvalueOpt:
               QvalueOpt = self.getQValue(state, moviminetosPos)
-              bestAction = moviminetosPos
+              # Limpiamos la lista para meter la nueva accion optima
+              bestActionList.clear()
+              bestActionList.append(moviminetosPos)
+            elif self.getQValue(state, moviminetosPos) == QvalueOpt:
+              # Añadimos nueva acion optima (sin borrar anteriores)
+              bestActionList.append(moviminetosPos)
 
+            # Elegimos una accion optima aleatoriamente
+          bestAction = random.choice(bestActionList)
           return bestAction
 
     def getAction(self, state):
